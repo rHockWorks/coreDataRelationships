@@ -49,13 +49,37 @@ struct ContentView: View {
             Text("Fetches Tom Hanks and changes his age to 70 then moves him to March 2021 record").font(.caption).foregroundColor(Color.gray)
             Divider()
          }
-         Text("List Of Records")
+
+         VStack{
+            Button(action: {
+               DataManager.deleteAllCustomers()
+               DataManager.deleteAllRecords()
+               DataManager.newRecord(month: "March", year: "2021")
+               DataManager.newRecord(month: "April", year: "2021")
+               DataManager.newCustomer(name: "Customer 1", age: 58, country: "USA", gender: "Male", record: nil)
+               DataManager.newCustomer(name: "Customer 2", age: 58, country: "Mexico", gender: "Female", record: nil)
+               DataManager.newCustomer(name: "Customer 3", age: 58, country: "Germany", gender: "Male", record: nil)
+               DataManager.newCustomer(name: "Customer 4", age: 58, country: "Spain", gender: "Female", record: nil)
+               allRecords = []
+               allRecords = DataManager.fetchAllRecords()
+            })
+            {
+               Text("Reset")
+            }.buttonStyle(BigBoldSlimline())
+            Text("Resets back to starting point - 4 customers, not linked to any record and 2 empty momnths").font(.caption).foregroundColor(Color.gray)
+            Divider()
+         }
+
+
+         Text("List Of Records").bold()
 
 
          List() {
             ForEach(allRecords) { record in
                Section(header: Text("\(record.month ?? "") \(record.year ?? "")"), content: {
-
+                  if record.customerArray.count == 0 {
+                     Text("No Customers")
+                  }
                   ForEach(record.customerArray) { customer in
                      HStack{
                         Text("\(customer.name ?? "")")
@@ -69,7 +93,9 @@ struct ContentView: View {
          }
 
 
-      }.onAppear{
+      }
+      .padding()
+      .onAppear{
          DataManager.deleteAllCustomers()
          DataManager.deleteAllRecords()
          DataManager.newRecord(month: "March", year: "2021")
@@ -78,6 +104,7 @@ struct ContentView: View {
          DataManager.newCustomer(name: "Customer 2", age: 58, country: "Mexico", gender: "Female", record: nil)
          DataManager.newCustomer(name: "Customer 3", age: 58, country: "Germany", gender: "Male", record: nil)
          DataManager.newCustomer(name: "Customer 4", age: 58, country: "Spain", gender: "Female", record: nil)
+         allRecords = []
          allRecords = DataManager.fetchAllRecords()
 
          let path = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.applicationSupportDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
