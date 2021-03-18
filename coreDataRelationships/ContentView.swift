@@ -16,7 +16,7 @@ struct ContentView: View {
 
          VStack{
             Button(action: {
-               scenario1()
+               Scenarios.scenario1()
                allRecords = []
                allRecords = DataManager.fetchAllRecords()
             }) {
@@ -28,7 +28,7 @@ struct ContentView: View {
          }
          VStack {
             Button(action: {
-              scenario2()
+               Scenarios.scenario2()
                allRecords = []
                allRecords = DataManager.fetchAllRecords()
             }) {
@@ -39,14 +39,14 @@ struct ContentView: View {
          }
          VStack {
             Button(action: {
-             scenario3()
+               Scenarios.scenario3()
                allRecords = []
                allRecords = DataManager.fetchAllRecords()
             })
             {
                Text("Scenario 3")
             }.buttonStyle(BigBoldSlimline())
-            Text("Fetches Tom Hanks and changes his age to 70 then moves him to March 2021 record").font(.caption).foregroundColor(Color.gray)
+            Text("Fetches Customer 5 and changes his age to 70 then moves him to March 2021 record").font(.caption).foregroundColor(Color.gray)
             Divider()
          }
 
@@ -54,19 +54,24 @@ struct ContentView: View {
             Button(action: {
                DataManager.deleteAllCustomers()
                DataManager.deleteAllRecords()
+               DataManager.newRecord(month: "February", year: "2021")
                DataManager.newRecord(month: "March", year: "2021")
                DataManager.newRecord(month: "April", year: "2021")
-               DataManager.newCustomer(name: "Customer 1", age: 58, country: "USA", gender: "Male", record: nil)
-               DataManager.newCustomer(name: "Customer 2", age: 58, country: "Mexico", gender: "Female", record: nil)
-               DataManager.newCustomer(name: "Customer 3", age: 58, country: "Germany", gender: "Male", record: nil)
-               DataManager.newCustomer(name: "Customer 4", age: 58, country: "Spain", gender: "Female", record: nil)
+               DataManager.newCustomer(name: "Cust 1", age: 58, country: "USA", gender: "Male", record: nil)
+               DataManager.newCustomer(name: "Cust 2", age: 58, country: "Mexico", gender: "Female", record: nil)
+               DataManager.newCustomer(name: "Cust 3", age: 58, country: "Germany", gender: "Male", record: nil)
+               DataManager.newCustomer(name: "Cust 4", age: 58, country: "Spain", gender: "Female", record: nil)
+               DataManager.newCustomer(name: "Cust 5", age: 65, country: "Switzerland", gender: "Male", record: nil)
+               let cust5 = DataManager.fetchCustomerByName(name: "Cust 5")[0]
+               let Feb21 = DataManager.fetchRecordByMonthAndYear(month: "February", year: "2021")[0]
+               DataManager.addCustomerToRecord(customer: cust5, record: Feb21)
                allRecords = []
                allRecords = DataManager.fetchAllRecords()
             })
             {
                Text("Reset")
             }.buttonStyle(BigBoldSlimline())
-            Text("Resets back to starting point - 4 customers, not linked to any record and 2 empty momnths").font(.caption).foregroundColor(Color.gray)
+            Text("Resets back to starting point - 4 customers, not linked to any record. 2 empty momnths, 1 month with cust 5 in").font(.caption).foregroundColor(Color.gray)
             Divider()
          }
 
@@ -82,10 +87,11 @@ struct ContentView: View {
                   }
                   ForEach(record.customerArray) { customer in
                      HStack{
-                        Text("\(customer.name ?? "")")
-                        Text("\(customer.age)")
-                        Text("\(customer.country ?? "")")
-                     }
+                        Text("Name: \(customer.name ?? "")")
+                        Text("Age: \(customer.age)")
+                        Text("Country: \(customer.country ?? "")")
+                      
+                     }.font(.caption)
                   }
                   }
             )
@@ -98,12 +104,17 @@ struct ContentView: View {
       .onAppear{
          DataManager.deleteAllCustomers()
          DataManager.deleteAllRecords()
+         DataManager.newRecord(month: "February", year: "2021")
          DataManager.newRecord(month: "March", year: "2021")
          DataManager.newRecord(month: "April", year: "2021")
-         DataManager.newCustomer(name: "Customer 1", age: 58, country: "USA", gender: "Male", record: nil)
-         DataManager.newCustomer(name: "Customer 2", age: 58, country: "Mexico", gender: "Female", record: nil)
-         DataManager.newCustomer(name: "Customer 3", age: 58, country: "Germany", gender: "Male", record: nil)
-         DataManager.newCustomer(name: "Customer 4", age: 58, country: "Spain", gender: "Female", record: nil)
+         DataManager.newCustomer(name: "Cust 1", age: 58, country: "USA", gender: "Male", record: nil)
+         DataManager.newCustomer(name: "Cust 2", age: 58, country: "Mexico", gender: "Female", record: nil)
+         DataManager.newCustomer(name: "Cust 3", age: 58, country: "Germany", gender: "Male", record: nil)
+         DataManager.newCustomer(name: "Cust 4", age: 58, country: "Spain", gender: "Female", record: nil)
+         DataManager.newCustomer(name: "Cust 5", age: 65, country: "Switzerland", gender: "Male", record: nil)
+         let cust5 = DataManager.fetchCustomerByName(name: "Cust 5")[0]
+         let Feb21 = DataManager.fetchRecordByMonthAndYear(month: "February", year: "2021")[0]
+         DataManager.addCustomerToRecord(customer: cust5, record: Feb21)
          allRecords = []
          allRecords = DataManager.fetchAllRecords()
 
@@ -121,30 +132,4 @@ struct ContentView: View {
 
 }
 
-func scenario1(){
-   let record = DataManager.fetchRecordByMonthAndYear(month: "April", year: "2021")
-   if record.count == 1 {
-      DataManager.newCustomer(name: "Ed Sheeran", age: 30, country: "England", gender: "Male", record: record[0])
-      DataManager.newCustomer(name: "Tom Hanks", age: 64, country: "USA", gender: "Male", record: record[0])
-      DataManager.newCustomer(name: "Margot Robbie", age: 30, country: "Australia", gender: "Female", record: record[0])
 
-   }
-}
-
-func scenario2(){
-   let record = DataManager.newRecord(month: "May", year: "2021")
-   let customersAged58 = DataManager.fetchCustomerByAge(age: 58)
-   for customer in customersAged58 {
-      DataManager.addCustomerToRecord(customer:customer, record:record)
-   }
-}
-
-func scenario3(){
-   let returnedCustomers = DataManager.fetchCustomerByName(name: "Tom Hanks")
-   let record = DataManager.fetchRecordByMonthAndYear(month: "March", year: "2021")
-   if returnedCustomers.count == 1 && record.count == 1 {
-      if record.count == 1 {
-         DataManager.updateCustomerNameAndRecord(customer:returnedCustomers[0], newAge: 70, newRecord: record[0])
-      }
-   }
-}

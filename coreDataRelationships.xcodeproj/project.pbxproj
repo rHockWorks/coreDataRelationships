@@ -19,6 +19,7 @@
 		9BA832A52603D7B900F42A52 /* Customer+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA832A12603D7B900F42A52 /* Customer+CoreDataClass.swift */; };
 		9BA832A62603D7B900F42A52 /* Customer+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA832A22603D7B900F42A52 /* Customer+CoreDataProperties.swift */; };
 		9BF9B41C2603F2D30062F474 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF9B41B2603F2D30062F474 /* ButtonStyles.swift */; };
+		9BF9B41F2604120E0062F474 /* Scenarios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF9B41E2604120E0062F474 /* Scenarios.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		9BA832A12603D7B900F42A52 /* Customer+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Customer+CoreDataClass.swift"; sourceTree = "<group>"; };
 		9BA832A22603D7B900F42A52 /* Customer+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Customer+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		9BF9B41B2603F2D30062F474 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		9BF9B41E2604120E0062F474 /* Scenarios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenarios.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				9BA832932603D5A300F42A52 /* Core Data */,
 				9BA8326F2603D1AD00F42A52 /* coreDataRelationshipsApp.swift */,
 				9BA832712603D1AD00F42A52 /* ContentView.swift */,
+				9BF9B41E2604120E0062F474 /* Scenarios.swift */,
 				9BA832872603D35200F42A52 /* DataManager.swift */,
 				9BF9B41B2603F2D30062F474 /* ButtonStyles.swift */,
 				9BA832732603D1AF00F42A52 /* Assets.xcassets */,
@@ -172,6 +175,7 @@
 			files = (
 				9BA832A32603D7B900F42A52 /* Record+CoreDataClass.swift in Sources */,
 				9BA832792603D1AF00F42A52 /* Persistence.swift in Sources */,
+				9BF9B41F2604120E0062F474 /* Scenarios.swift in Sources */,
 				9BA832A62603D7B900F42A52 /* Customer+CoreDataProperties.swift in Sources */,
 				9BF9B41C2603F2D30062F474 /* ButtonStyles.swift in Sources */,
 				9BA832882603D35200F42A52 /* DataManager.swift in Sources */,
