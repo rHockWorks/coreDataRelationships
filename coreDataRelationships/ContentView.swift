@@ -12,7 +12,7 @@ struct ContentView: View {
    @Environment(\.managedObjectContext) private var viewContext
    @State var allRecords: [Record] = []
    var body: some View {
-      VStack (spacing: 30) {
+      VStack (spacing: 10) {
 
          VStack{
             Button(action: {

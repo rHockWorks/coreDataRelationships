@@ -32,7 +32,7 @@ struct Scenarios{
       let record = DataManager.fetchRecordByMonthAndYear(month: "March", year: "2021")
       if returnedCustomers.count == 1 && record.count == 1 {
          if record.count == 1 {
-            DataManager.updateCustomerNameAndRecord(customer:returnedCustomers[0], newAge: 70, newRecord: record[0])
+            DataManager.updateCustomerAgeAndRecord(customer:returnedCustomers[0], newAge: 70, newRecord: record[0])
          }
       }
    }

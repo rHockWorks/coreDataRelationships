@@ -159,7 +159,7 @@ return customers
 
    }
 
-   class func updateCustomerNameAndRecord(customer:Customer, newAge: Int, newRecord: Record) {
+   class func updateCustomerAgeAndRecord(customer:Customer, newAge: Int, newRecord: Record) {
 let context = getContext()
 
       customer.age = Int32(newAge)
