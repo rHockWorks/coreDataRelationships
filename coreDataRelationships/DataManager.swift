@@ -67,7 +67,7 @@ class DataManager {
         
         } else if checkStageSeason == true {
 
-            updateRecrod(withCustomer: customerData, forRecord: record)
+            updateRecord(withCustomer: customerData, forRecord: record)
         }
     }
     
@@ -86,7 +86,7 @@ class DataManager {
     }
     
     
-    class func updateRecrod(withCustomer customer: Customer, forRecord record: (String, String)) {
+    class func updateRecord(withCustomer customer: Customer, forRecord record: (String, String)) {
         
         let checkMonth  : String    = record.0
         let checkYear   : String    = record.1
@@ -113,7 +113,7 @@ class DataManager {
     }
        
         
-    class func fetchCustomerData(forName name: String, with: PredictaeCheck) -> [Customer] {
+    private class func fetchCustomerData(forName name: String, with: PredictaeCheck) -> [Customer] {
      
         let context             = getContext()
         var customers           = [Customer]()
@@ -137,7 +137,7 @@ class DataManager {
     }
     
     
-    class func fetchRecordByMonthAndYear(month: String, year: String) -> [Record] {
+    private class func fetchRecordByMonthAndYear(month: String, year: String) -> [Record] {
 
         let context             = getContext()
         var record              = [Record]()
@@ -158,7 +158,7 @@ class DataManager {
     }
     
 
-    class func checkEntryExists(forMonth month: String, forYear year: String) -> Bool {
+    private class func checkEntryExists(forMonth month: String, forYear year: String) -> Bool {
 
         let context             = getContext()
         var returnCondition     : Bool = false
@@ -196,7 +196,7 @@ class DataManager {
     }
         
         
-    class func addCustomerToRecord(customer: Customer, record: Record) {
+    private class func addCustomerToRecord(customer: Customer, record: Record) {
         
         let context = getContext()
 
@@ -206,7 +206,7 @@ class DataManager {
     }
         
         
-    class func removeCustomerFromRecord(customer: Customer, record: Record) {
+    private class func removeCustomerFromRecord(customer: Customer, record: Record) {
          
         let context = getContext()
 
@@ -216,7 +216,7 @@ class DataManager {
     }
 
     
-    class func saveNewRecord(month: String, year: String) {
+    private class func saveNewRecord(month: String, year: String) {
         
         let context     = getContext()
         let newRecord   = Record(context: context)
@@ -228,7 +228,7 @@ class DataManager {
     }
     
 
-    class func saveData(with: NSManagedObjectContext) {
+    private class func saveData(with: NSManagedObjectContext) {
         
         do {
             try context.save()
