@@ -9,191 +9,319 @@ import Foundation
 import CoreData
 
 class DataManager {
-private class func getContext() -> NSManagedObjectContext {
-  return PersistenceController.shared.container.viewContext
-}
+    
+    enum CoreDataError: String, Error {
+        
+        case
+        fetchRequest    = "Unable to fetch or create list",
+        fetchObject     = "Unable to fetch managed objects for entity",
+        saveObject      = "Unable to save managed object context",
+        deleteRequest   = "Unable to delete object"
+    }
+    
+    enum CoreDataConfirmation: String {
+        
+        case
+        dataSaved       = "New Record saved succesfully"
+    }
 
-   class func fetchAllRecords() -> [Record] {
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let context = getContext()
-      var records = [Record]()
-      let recordsFetchRequest: NSFetchRequest<Record> = Record.fetchRequest()
+    enum PredictaeCheck: String {
+        
+        case
+        name            = "name == %@",
+        month           = "month == %@",
+        year            = "year == %@"
+    }
+    
+    
+    private class func getContext() -> NSManagedObjectContext {
+        return PersistenceController.shared.container.viewContext
+    }
 
-   do {
-      records = try context.fetch(recordsFetchRequest) }
-   catch {
-      print (error)
-   }
-return records
-   }
+    
+    
+    
+    
+    class func addRecord(withCustomerName customerName      : String,
+                         CustomerAge customerAge            : Int32,
+                         CustomerCountry customerCountry    : String,
+                         CustomerGender customerGender      : String,
+                         forRecord record                   : (String, String)) {
+        
+        let checkMonth          : String    = record.0
+        let checkYear           : String    = record.1
+        let context                         = getContext()
+        let customerData                    = Customer(context: context)
+        let checkStageSeason    : Bool      = DataManager.checkEntryExists(forMonth: checkMonth, forYear: checkYear)
+        
+   
+        customerData.name       = customerName
+        customerData.age        = customerAge
+        customerData.country    = customerCountry
+        customerData.gender     = customerGender
 
-   class func newRecord(month: String, year: String) -> Record {
-let context = getContext()
+        
+        if checkStageSeason == false {
 
-   print("Loading function: \(#function), line: \(#line) \(#fileID)")
-   let newRecord = Record(context: context)
-   newRecord.month = month
-   newRecord.year = year
+            createRecord(withCustomer: customerName, forRecord: record)
+        
+        } else if checkStageSeason == true {
 
-   do {
-       try context.save()
-      print("new Record saved succesfully.")
+            updateRecrod(withCustomer: customerData, forRecord: record)
+        }
+    }
+    
+    
+    class func createRecord(withCustomer customer: String, forRecord record: (String, String)) {
+        
+        let checkMonth      : String    = record.0
+        let checkYear       : String    = record.1
+        
+        DataManager.saveNewRecord(month: checkMonth, year: checkYear)
+        
+        let newCustomer = DataManager.fetchCustomerData(forName: customer, with: .name)[0]
+        let forRecord   = DataManager.fetchRecordByMonthAndYear(month: checkMonth, year: checkYear)[0]
+        
+        DataManager.addCustomerToRecord(customer: newCustomer, record: forRecord)
+    }
+    
+    
+    class func updateRecrod(withCustomer customer: Customer, forRecord record: (String, String)) {
+        
+        let checkMonth  : String    = record.0
+        let checkYear   : String    = record.1
+        let newCustomer = DataManager.fetchCustomerData(forName: customer.name ?? "TEMP", with: .name)[0]
+        let forRecord   = DataManager.fetchRecordByMonthAndYear(month: checkMonth, year: checkYear)[0]
+        
+        DataManager.addCustomerToRecord(customer: newCustomer, record: forRecord)
+    }
+     
+    
+    class func purgeRecord(forCustomer customer: String, inRecord record: (String, String)) {
+        
+        let checkMonth          : String    = record.0
+        let checkYear           : String    = record.1
+        let checkStageSeason    : Bool      = DataManager.checkEntryExists(forMonth: checkMonth, forYear: checkYear)
+        
+        if checkStageSeason == true {
 
-     } catch {
-      print(error)
-      }
-      return newRecord
-}
-
-   class func newCustomer(name: String, age:Int, country: String, gender:String, record: Record?) {
-   let context = getContext()
-
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let newCustomer = Customer(context: context)
-      newCustomer.name = name
-      newCustomer.age = Int32(age)
-      newCustomer.country = country
-      newCustomer.gender = gender
-
-      if record != nil {
-      record!.addToCustomer(newCustomer)
-      }
-      do {
-          try context.save()
-         print("new Customer saved succesfully.")
-
+            let customerOfInterest  = DataManager.fetchCustomerData(forName: customer, with: .name)[0]
+            let forRecord           = DataManager.fetchRecordByMonthAndYear(month: checkMonth, year: checkYear)[0]
+            
+            DataManager.removeCustomerFromRecord(customer: customerOfInterest, record: forRecord)
+        }
+    }
+       
+        
+    class func fetchCustomerData(forName name: String, with: PredictaeCheck) -> [Customer] {
+     
+        let context             = getContext()
+        var customers           = [Customer]()
+        let customerFetchRequest: NSFetchRequest<Customer> = Customer.fetchRequest()
+        var predicateName       : NSPredicate {
+                                               switch with {
+                                               case .name  : return NSPredicate(format: PredictaeCheck.name.rawValue, name)
+                                               default     : return NSPredicate(format: PredictaeCheck.name.rawValue, name)
+                                               }
+                                           }
+       
+        customerFetchRequest.predicate = predicateName
+       
+        do {
+            customers = try context.fetch(customerFetchRequest)
+           
         } catch {
-         print(error)
-         }
-   }
+            print (error)
+        }
+        return customers
+    }
+    
+    
+    class func fetchRecordByMonthAndYear(month: String, year: String) -> [Record] {
 
-   class func fetchRecordByMonthAndYear(month: String, year: String) -> [Record] {
+        let context             = getContext()
+        var record              = [Record]()
+        let recordFetchRequest  : NSFetchRequest<Record> = Record.fetchRequest()
+        let predicateMonth      = NSPredicate(format: PredictaeCheck.month.rawValue, month)
+        let predicateYear       = NSPredicate(format: PredictaeCheck.year.rawValue, year)
+        let predicateAnd        = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateMonth, predicateYear])
 
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let context = getContext()
-      var record = [Record]()
-      let recordFetchRequest: NSFetchRequest<Record> = Record.fetchRequest()
+        recordFetchRequest.predicate = predicateAnd
+        
+        do {
+            record = try context.fetch(recordFetchRequest)
+        
+        } catch {
+            print (CoreDataError.fetchObject.rawValue, error)
+        }
+        return record
+    }
+    
 
-      let predicateMonth = NSPredicate(format: "month == %@", month)
-      let predicateYear = NSPredicate(format: "year == %@", year)
-      let predicateAnd = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateMonth, predicateYear])
+    class func checkEntryExists(forMonth month: String, forYear year: String) -> Bool {
 
-      recordFetchRequest.predicate = predicateAnd
-   do {
-      record = try context.fetch(recordFetchRequest) }
-   catch {
-      print (error)
-   }
-return record
+        let context             = getContext()
+        var returnCondition     : Bool = false
+        let recordFetchRequest  : NSFetchRequest<Record> = Record.fetchRequest()
+        let predicateMonth      = NSPredicate(format: PredictaeCheck.month.rawValue, month)
+        let predicateYear       = NSPredicate(format: PredictaeCheck.year.rawValue, year)
+        let predicateComplete   = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateMonth, predicateYear])
 
+        recordFetchRequest.predicate = predicateComplete
+       
+        do {
+            if try context.fetch(recordFetchRequest).isEmpty == false { returnCondition = true }
+        
+        } catch {
+            print (CoreDataError.fetchObject.rawValue, error)
+        }
+        return returnCondition
+    }
+    
+    
+    class func fetchAllRecords() -> [Record] {
+          
+        let context             = getContext()
+        var records             = [Record]()
+        let recordsFetchRequest : NSFetchRequest<Record> = Record.fetchRequest()
+          
+        
+        do {
+            records = try context.fetch(recordsFetchRequest)
+            
+        } catch {
+            print (CoreDataError.fetchRequest.rawValue, error)
+        }
+        return records
+    }
+        
+        
+    class func addCustomerToRecord(customer: Customer, record: Record) {
+        
+        let context = getContext()
 
-   }
+        record.addToCustomer(customer)
+        
+        saveData(with: context)
+    }
+        
+        
+    class func removeCustomerFromRecord(customer: Customer, record: Record) {
+         
+        let context = getContext()
 
-   class func fetchCustomerByAge(age: Int) -> [Customer] {
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let context = getContext()
-      var customers = [Customer]()
-      let customerFetchRequest: NSFetchRequest<Customer> = Customer.fetchRequest()
+        record.removeFromCustomer(customer)
+           
+        saveData(with: context)
+    }
 
-      let predicateage = NSPredicate(format: "age == %i", age)
+    
+    class func saveNewRecord(month: String, year: String) {
+        
+        let context     = getContext()
+        let newRecord   = Record(context: context)
+        
+        newRecord.month = month
+        newRecord.year  = year
 
+        saveData(with: context)
+    }
+    
 
-      customerFetchRequest.predicate = predicateage
-   do {
-      customers = try context.fetch(customerFetchRequest) }
-   catch {
-      print (error)
-   }
-return customers
+    class func saveData(with: NSManagedObjectContext) {
+        
+        do {
+            try context.save()
+            print(CoreDataConfirmation.dataSaved.rawValue)
 
+         } catch {
+            print(CoreDataError.saveObject.rawValue, error)
+        }
+    }
 
-   }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //FIXME: NOTE YET IN USE : REFACTOR METHOD FOR CONTEXT FETCH REQUEST
+    class func fetchData(withRequest request: NSFetchRequest<NSManagedObject>) -> [NSManagedObject] {
+        
+        var returnData = [NSManagedObject]()
+        
+        do {
+            returnData = try context.fetch(request)
+            
+        } catch {
+            print (CoreDataError.fetchRequest.rawValue, error)
+        }
+        return returnData
+    }
+        
+        
+    //NOT IN USE
+    class func deleteAllCustomers() {
+        
+        let context         = getContext()
+        let fetchRequest    : NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Customer")
+        let deleteRequest   = NSBatchDeleteRequest(fetchRequest: fetchRequest)
 
-   class func addCustomerToRecord(customer:Customer, record:Record) {
-let context = getContext()
+        do {
+            try context.execute(deleteRequest)
+        
+        } catch {
+            print(CoreDataError.deleteRequest.rawValue, error)
+        }
+    }
 
-      record.addToCustomer(customer)
-      do {
-         try context.save()
-      }
-      catch {
-         print (error)
-      }
+        
+    //NOT IN USE
+    class func deleteAllRecords() {
+        
+        let context         = getContext()
+        let fetchRequest    : NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Record")
+        let deleteRequest   = NSBatchDeleteRequest(fetchRequest: fetchRequest)
 
-   }
-
-   class func fetchCustomersByRecord(record:Record) -> [Customer] {
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let context = getContext()
-      var customers = [Customer]()
-      let customerFetchRequest: NSFetchRequest<Customer> = Customer.fetchRequest()
-
-      let predicateName = NSPredicate(format: "record == %@", record)
-
-
-      customerFetchRequest.predicate = predicateName
-   do {
-      customers = try context.fetch(customerFetchRequest) }
-   catch {
-      print (error)
-   }
-return customers
-   }
-
-   class func fetchCustomerByName(name: String) -> [Customer] {
-      print("Loading function: \(#function), line: \(#line) \(#fileID)")
-      let context = getContext()
-      var customers = [Customer]()
-      let customerFetchRequest: NSFetchRequest<Customer> = Customer.fetchRequest()
-
-      let predicateName = NSPredicate(format: "name == %@", name)
-
-
-      customerFetchRequest.predicate = predicateName
-   do {
-      customers = try context.fetch(customerFetchRequest) }
-   catch {
-      print (error)
-   }
-return customers
-
-   }
-
-   class func updateCustomerAgeAndRecord(customer:Customer, newAge: Int, newRecord: Record) {
-let context = getContext()
-
-      customer.age = Int32(newAge)
-      customer.record = newRecord
-      do {
-         try context.save()
-      }
-      catch {
-         print (error)
-      }
-
-
-   }
-
-   class func deleteAllCustomers(){
-      let context = getContext()
-      let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Customer")
-      let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
-      do {
-         try context.execute(deleteRequest)
-      } catch { print(error)
-      }
-   }
-
-   class func deleteAllRecords(){
-      let context = getContext()
-      let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Record")
-      let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
-      do {
-         try context.execute(deleteRequest)
-      } catch { print(error)
-      }
-   }
-
+        do {
+            try context.execute(deleteRequest)
+        
+        } catch {
+            print(CoreDataError.deleteRequest.rawValue, error)
+        }
+    }
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    //TEMP
+    func printRecords111(time: Int) {
+    
+    let allRecords = DataManager.fetchAllRecords()
+    
+        print("///////////////////////// [\(time)] //////////////////////////////////")
+        for record in allRecords {
+            print("VBSSU01 : \(record.month)")
+            print("VBSSU02 : \(record.year)")
+            for customer in record.customerArray {
+                print("VBSSU03 : \(customer.name)")
+                print("VBSSU04 : \(customer.age)")
+                print("VBSSU05 : \(customer.gender)")
+                print("VBSSU06 : \(customer.country)")
+            }
+        }
+        print("///////////////////////////////////////////////////////////")
+    }
+    
+    
+    
+    
 }
