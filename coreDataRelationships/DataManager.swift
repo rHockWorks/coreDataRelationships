@@ -230,6 +230,8 @@ class DataManager {
 
     private class func saveData(with: NSManagedObjectContext) {
         
+        let context = getContext()
+        
         do {
             try context.save()
             print(CoreDataConfirmation.dataSaved.rawValue)
@@ -251,6 +253,7 @@ class DataManager {
     //FIXME: NOTE YET IN USE : REFACTOR METHOD FOR CONTEXT FETCH REQUEST
     class func fetchData(withRequest request: NSFetchRequest<NSManagedObject>) -> [NSManagedObject] {
         
+        let context = getContext()
         var returnData = [NSManagedObject]()
         
         do {
